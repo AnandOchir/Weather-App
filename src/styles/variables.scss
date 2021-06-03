@@ -1,0 +1,31 @@
+$baseline: 4px;
+
+$colors: (
+    //primary actions like buttons and links
+    primary: #1DD3D2,
+    primary-second: #96DED0,
+    primary-third: #59D9C0,
+    white: white,
+    //
+    secondary: #FCBF49,
+    secondary-second: #EFD6A7,
+    secondary-third: #F5CB78,
+    // card background light
+    default: #FCFCFD,
+    // card background
+    light-gray: #F4F5F8,
+    // disabled, inactive
+    inactive: #CACCCF,
+    //loading
+    loginBg: #09caec,
+    // paragraphs, etc.
+    gray: #52575C,
+    // titles, sections
+    black: #131416,
+    // error warning
+    warning: #FB4E4E,
+    warning-second: #E93C3C,
+    // success
+    positive: #025f30,
+    positive-second: #7BEB66,
+);

@@ -1,0 +1,179 @@
+@import './flex.scss';
+@import './variables.scss';
+
+@function pow($base, $exp) {
+    $res: 1;
+    @for $i from 1 through $exp {
+        $res: $res * $base;
+    }
+    @return $res;
+}
+
+@each $name, $color in $colors {
+    .c-#{$name} {
+        color: $color;
+    }
+
+    .b-#{$name} {
+        background-color: $color;
+    }
+
+    @for $i from 1 through 10 {
+        .br-#{$name}-#{$i} {
+            border: solid $color $i + px;
+        }
+    }
+}
+
+@for $i from 1 through 600 {
+    .h-#{$i} {
+        height:  $i + px;
+    }
+    .w-#{$i} {
+        width:  $i + px;
+    }
+    .pa-#{$i} {
+        padding:  $i + px;
+    }
+    .ph-#{$i} {
+        padding-left:  $i + px;
+        padding-right:  $i + px;
+    }
+    .ma-#{$i} {
+        margin:  $i + px;
+    }
+    .mt-#{$i} {
+        margin-top:  $i + px;
+    }
+    .ml-#{$i} {
+        margin-left:  $i + px;
+    }
+    .mb-#{$i} {
+        margin-bottom: $i + px;
+    }
+}
+
+body {
+    margin: 0 auto;
+}
+
+.w50 {
+    width: 50%;
+}
+
+.w70 {
+    width: 70%;
+}
+
+.w100 {
+    width: 100%;
+}
+
+.h100 {
+    height: 100%;
+}
+
+.h70 {
+    height: 70%;
+}
+
+.margin-auto {
+    margin: auto;
+}
+
+.rb {
+    border: none;
+}
+
+.ru {
+    text-decoration: none;
+    color: white;
+}
+
+.ul {
+    text-decoration: underline;
+}
+
+.nopadding {
+    padding: none;
+}
+
+.op {
+    opacity: 0.5;
+}
+
+.rm {
+    margin: 0;
+}
+
+.pr {
+    position: relative;
+}
+
+@for $i from 1 to 100 {
+    .bb-#{$i} {
+        border-bottom: solid grey $i + px;
+    }
+    .bt-#{$i} {
+        border-top: solid black $i + px;
+    }
+    .bl-#{$i} {
+        border-left: solid black $i + px;
+    }
+    .bright-#{$i} {
+        border-right: solid black $i + px;
+    }
+    .bradius-#{$i} {
+        border-radius: $i + px;
+    }
+    .fs {
+        font-size: $i + px;
+    }
+}
+
+.dn {
+    display: none;
+}
+
+.pa {
+    position: absolute;
+}
+
+.activity-bg {
+    background-image: url('../images/activityIllustration.jpg');
+    background-size: cover;
+}
+
+.modal {
+    font-size: 12px;
+  }
+  .modal > .header {
+    width: 100%;
+    border-bottom: 1px solid gray;
+    font-size: 18px;
+    text-align: center;
+    padding: 5px;
+  }
+  .content {
+    width: 60%;
+    padding: 10px 5px;
+  }
+  .modal > .actions {
+    width: 100%;
+    padding: 10px 5px;
+    margin: auto;
+    text-align: center;
+  }
+  .modal > .close {
+    cursor: pointer;
+    position: absolute;
+    display: block;
+    padding: 2px 5px;
+    line-height: 20px;
+    right: -10px;
+    top: -10px;
+    font-size: 24px;
+    background: #ffffff;
+    border-radius: 18px;
+    border: 1px solid #cfcece;
+  }
