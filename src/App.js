@@ -4,18 +4,7 @@ import './styles/main.scss'
 import axios from 'axios'
 import { Animation } from './components/icon'
 import { useFirebase, useCol, useDoc } from './hooks/firebase.js'
-import { HumidityIcon, PopUp, Charts } from './components'
-
-// const TimeConverter = (timestamp) => {
-//   let date = new Date(timestamp * 1000);
-//   let hours = date.getHours();
-//   let minutes = "0" + date.getMinutes();
-//   let seconds = "0" + date.getSeconds();
-
-//   let formattedTime = hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
-
-//   return formattedTime;
-// }
+import { HumidityIcon, PopUp, Charts, Box, Button, Text } from './components'
 
 const MonthConverter = (month) => {
   switch (month) {
@@ -68,32 +57,39 @@ const RandomNumberAndString = () => {
 }
 
 const App = () => {
+  // Authintcation
   const { auth } = useFirebase();
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [user, setUser] = useState(null);
+  const [userVerified, setUserVerified] = useState(false);
+  const [login, setLogin] = useState(true);
+  // Weather
   const [weatherData, setWeatherData] = useState(null);
   const [temperature, setTemperature] = useState('')
   const [main, setMain] = useState('')
   const [humidity, setHumidity] = useState('')
-  const [user, setUser] = useState(null)
-  const [userVerified, setUserVerified] = useState(false)
+  // Errors
   const [error, setError] = useState('')
   const [loginError, setLoginError] = useState('')
   const [activityError, setActivityError] = useState('')
+  // Data's
   const [activityScore, setActivityScore] = useState(1)
-  // const [sun, setSun] = useState({})
-  const [login, setLogin] = useState(true)
-  const date = new Date().toISOString().slice(0, 10);
+  const [chartData, setChartData] = useState([]);
+  // Firestore Data's
   const { data, createRecord } = useCol('/Users/')
   const { data: feedBackData } = useCol('/FeedBack/')
   const { data: lastActivity, updateRecord: updateLastActivity, readAgain } = useDoc(`/Users/${user?.uid}`)
   const { data: activityScores, createRecord: createActivity } = useCol(`/Users/${user?.uid}/ActivityScores/`)
+  // others
+  const date = new Date().toISOString().slice(0, 10);
+  const [feedback, setFeedback] = useState(false);
+  // window width, height
   const height = window.innerHeight
   const width = window.innerWidth
-  const [chartData, setChartData] = useState([]);
-  const [feedback, setFeedback] = useState(false)
 
+  // UseEffect
   useEffect(() => {
     axios.get(`http://api.openweathermap.org/data/2.5/weather?id=2028461&appid=d0d15a18bc851b0ddbb0d65536786570`)
       .then(res => {
@@ -102,19 +98,11 @@ const App = () => {
         setTemperature((data?.main?.temp - 273.15).toString().substring(0, 4));
         setMain(data?.weather[0].main);
         setHumidity(data?.main?.humidity)
-        // setSun({
-        //   sunrise: TimeConverter(data?.sys.sunrise),
-        //   sunset: TimeConverter(data?.sys.sunset)
-        // })
       })
   }, [])
 
-  // if(user) {
-  //   setActivityError('')
-  // }
-
   useEffect(() => {
-    if(activityScores) {
+    if (activityScores) {
       setChartData(activityScores.map((e) => {
         return {
           'name': e.date,
@@ -125,17 +113,17 @@ const App = () => {
   }, [activityScores])
 
   useEffect(() => {
-      const a = feedBackData?.map((e) => {
-        if(e.userId === user?.uid) {
-          return e.userId;
-        }
-      });
-      if(a[0]) {
-        setFeedback(true) 
+    const data = feedBackData?.map((e) => {
+      if (e.userId === user?.uid) {
+        return e.userId;
       }
+    });
+    if (data[0]) {
+      setFeedback(true)
+    }
   }, [feedBackData, user?.uid])
 
-
+  // Auth
   const SignUp = (email, password) => {
     auth.createUserWithEmailAndPassword(email, password)
       .then((userCredential) => {
@@ -173,6 +161,7 @@ const App = () => {
       });
   }
 
+  // DB
   const GetUsername = (data, uid) => {
     const username = data.map((e) => {
       if (e.uid === uid) {
@@ -217,9 +206,10 @@ const App = () => {
     }
   }
 
+  // Loading ...
   if (!weatherData || !feedBackData) {
     return (
-      <div className={'box'} >
+      <div className={'loader-box'} >
         <div class="lds-facebook">
           <div>
           </div>
@@ -233,116 +223,116 @@ const App = () => {
   }
 
   return (
-    <div className={'w100 h100'} >
-      <div style={{ display: 'flex', flexDirection: 'row' }} >
+    <Box >
+      <div className={'flex-row'}>
         <div className={weatherData?.weather[0].icon[2] === 'd' ? 'container' : 'night-container'} >
-          <div className={'sub-container'} >
-            <div style={{ display: 'flex', justifyContent: 'justify-between', padding: 20 }} >
-              <div style={{ width: '50%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'flex-start', marginLeft: 10 }} >
+          <Box >
+            <div className={'flex justify-between pa-20'} >
+              <div className={'w50 h100 flex-col justify-center items-start ml-10'} >
                 <div>
-                  <h2 className={'title'} >Ulaanbaatar</h2>
-                  <h4 style={{ opacity: 0.6 }} >{DateConverter(date)}</h4>
+                  <Text className={`fs-40 ${weatherData?.weather[0].icon[2] === 'n' && 'c-white'}`} >Ulaanbaatar</Text>
+                  <Text className={'op fs-20'} >{DateConverter(date)}</Text>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }} >
+                <div className={'flex-row items-center'} >
                   <Animation id={weatherData?.weather[0].icon} />
-                  <h2 style={{ fontSize: '40px', margin: 0 }} >{main}</h2>
+                  <Text className={`fs-40 rm ${weatherData?.weather[0].icon[2] === 'n' && 'c-white'}`}>{main}</Text>
                 </div>
               </div>
-              <div style={{ width: '50%', height: '300px', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }} >
-                <h2 className={'temp'} >{temperature}°</h2>
+              <div className={'w50 h-300 textcenter flex-center'} >
+                <Text className={`fs-100 rm ${weatherData?.weather[0].icon[2] === 'n' && 'c-white'}`} >{temperature}°</Text>
                 <div className={'flex-row items-center'} >
-                  <HumidityIcon width={20} height={20} fill={'black'} />
-                  <h2>{humidity}%</h2>
+                  <HumidityIcon width={20} height={20} fill={`${weatherData?.weather[0].icon[2] === 'n' ? 'white' : 'black'}`} />
+                  <Text className={`${weatherData?.weather[0].icon[2] === 'n' && 'c-white'}`} >{humidity}%</Text>
                 </div>
               </div>
             </div>
-          </div>
+          </Box>
         </div>
-        <div style={{ width: '20%', height: '328px', display: 'flex', justifyContent: 'center', paddingTop: '10px', color: 'orange', flexDirection: 'column', alignItems: 'center', border: '1px solid black' }} >
+        <div className={'w20 h-328 flex-center pt-10 br-black-1 c-auth'} >
           {
             userVerified ?
               <>
                 <div>{GetUsername(data, user.uid)}</div>
-                <p style={{ color: 'red', textDecoration: 'underline' }} onClick={LogOut} >Logout</p>
+                <Text className={'c-red fs-15 ul'} onClick={LogOut} >Logout</Text>
               </>
               :
               login ?
                 <>
-                  <h2 style={{ height: '20%' }} >Login</h2>
-                  <div style={{ display: 'flex', flexDirection: 'column', height: '80%', alignItems: 'center', width: '100%' }} >
+                  <Text className={'h20'} >Login</Text>
+                  <div className={'h80 flex-col items-center w100'} >
                     <input placeholder={'email'} value={email} onChange={(e) => { setEmail(e.target.value) }} />
                     <input placeholder={'password'} type={'password'} value={password} onChange={(e) => { setPassword(e.target.value) }} />
-                    <button style={{ width: '70%', height: '30px', borderRadius: '5px', backgroundColor: 'orange', border: 'none' }} onClick={() => { Login(email, password) }} >Login</button>
+                    <Button className={'w70 h-30 mb-15'} onClick={() => { Login(email, password) }} >Login</Button>
                     {
                       loginError ?
-                        <p style={{ fontSize: '10px', margin: 0, marginTop: 5, color: 'red', textDecoration: 'underline', textAlign: 'center', height: '10px' }} >{loginError}</p>
+                        <Text className={'fs-10 rm mt-5 c-red ul textcenter h-10'} >{loginError}</Text>
                         :
                         user ?
-                          <p style={{ fontSize: '10px', margin: 0, marginTop: 5, color: 'green', textDecoration: 'underline', textAlign: 'center', height: '10px' }} >Verified, please wait</p>
+                          <Text className={'fs-10 rm mt-5 c-green ul textcenter h-10'} >Verified, please wait</Text>
                           :
-                          <div style={{ height: '19px', width: '10px' }} ></div>
+                          <div className={'h-19 w-10'} ></div>
                     }
-                    <p style={{ fontSize: '15px', color: 'royalblue', textDecoration: 'underline' }} onClick={() => { setLogin(false) }} >SignUp</p>
+                    <Text className={'fs-15 c-rblue ul mt-20'} onClick={() => { setLogin(false) }} >SignUp</Text>
                   </div>
                 </>
                 :
                 <>
-                  <h2 style={{ height: '20%' }} >SignUp</h2>
-                  <div style={{ display: 'flex', flexDirection: 'column', height: '80%', width: '100%', alignItems: 'center' }} >
+                  <Text className={'h20'}>SignUp</Text>
+                  <div className={'flex-col h80 w100 items-center'} >
                     <input placeholder={'username'} value={username} onChange={(e) => { setUsername(e.target.value) }} />
                     <input placeholder={'email'} value={email} onChange={(e) => { setEmail(e.target.value) }} />
                     <input placeholder={'password'} type={'password'} value={password} onChange={(e) => { setPassword(e.target.value) }} />
-                    <button style={{ width: '70%', height: '30px', borderRadius: '5px', backgroundColor: 'orange', border: 'none' }} onClick={() => { SignUp(email, password) }} >SignUp</button>
+                    <Button className={'w70 h-30 mb-15'} onClick={() => { SignUp(email, password) }} >SignUp</Button>
                     {
                       error ?
-                        <p style={{ fontSize: '10px', margin: 0, marginTop: 5, color: 'red', textDecoration: 'underline', textAlign: 'center', height: '10px' }} >{error}</p>
+                        <Text className={'fs-10 rm mt-5 c-red ul textcenter h-10'} >{error}</Text>
                         :
-                        <div style={{ height: '19px', width: '10px' }} ></div>
+                        <div className={'h-19 w-10'} ></div>
                     }
-                    <p style={{ fontSize: '15px', color: 'royalblue', textDecoration: 'underline' }} onClick={() => { setLogin(true) }} >Login</p>
+                    <Text className={'fs-15 c-rblue ul mt-20'} onClick={() => { setLogin(true) }} >Login</Text>
                   </div>
                 </>
           }
         </div>
       </div>
-      <div className={'w100 h100 flex-row'} >
-        <div className={'pa-8 flex-col items-center'} style={{ width: '30%', height: ((height - 358) + 'px'), border: '1px solid black' }} >
-          <h3 className={'rm'} style={{ marginTop: '5px' }} >Today's activity</h3>
+      <Box className={'flex-row'} >
+        <div className={'pa-8 flex-col items-center w30 br-black-1'} style={{ height: ((height - 358) + 'px') }} >
+          <Text className={'rm mt-5'} >Today's activity</Text>
           <div className={'w100 h70 flex-col items-center justify-around'} >
-            <p>{'Activity 0 -> 10'}</p>
-            <input className={'w50 rm'} type="number" min={'1'} max={'10'} value={activityScore} onChange={(e) => { e.target.value <= 10 && setActivityScore(e.target.value) }} ></input>
+            <Text className={'fs-15'} >{'Activity 0 -> 10'}</Text>
+            <input className={'w50 rm'} type="number" min={'1'} max={'10'} value={activityScore} onChange={(e) => { e.target.value <= 10 && setActivityScore(e.target.value) }} />
             {
               activityError === 'Your Activity has been sent' ?
-                <p style={{ fontSize: '10px', margin: 0, marginTop: 5, color: 'green', textDecoration: 'underline', textAlign: 'center', height: '10px' }} >{activityError}</p>
+                <Text className={'fs-10 rm mt-5 c-green ul textcenter h-10'} >{activityError}</Text>
                 :
                 activityError === 'You are cooldowns please send tomorrow' ?
-                  <p style={{ fontSize: '10px', margin: 0, marginTop: 5, color: 'red', textDecoration: 'underline', textAlign: 'center', height: '10px' }} >{activityError}</p>
+                  <Text className={'fs-10 rm mt-5 c-red ul textcenter h-10'} >{activityError}</Text>
                   :
                   activityError ?
-                    <p style={{ fontSize: '10px', margin: 0, marginTop: 5, color: 'red', textDecoration: 'underline', textAlign: 'center', height: '10px' }} >{activityError}</p>
+                    <Text className={'fs-10 rm mt-5 c-red ul textcenter h-10'}>{activityError}</Text>
                     :
-                    <div style={{ height: '19px', width: '10px' }} ></div>
+                    <div className={'h-19 w-10'} ></div>
             }
-            <button className={'h-40 w-200 b-secondary bradius-5 rb'} onClick={UpdateActivity} >Send</button>
+            <Button className={'h-40 w-200'} onClick={UpdateActivity} >Send</Button>
           </div>
           {
             user?.uid ?
               !feedback &&
-                <PopUp uid={user?.uid}/>
-            :
-              !feedback && <p style={{ fontSize: '10px', margin: 0, marginTop: 5, color: 'red', textDecoration: 'underline', textAlign: 'center', height: '10px' }} >Please login to send feedback !</p>
+              <PopUp uid={user?.uid} />
+              :
+              !feedback && <Text className={'fs-10 rm mt-5 c-red ul textcenter h-10'}>Please login to send feedback !</Text>
           }
         </div>
-        <div className={'flex justify-center items-center'} style={{ width: '70%', height: ((height - 342) + 'px'), border: '1px solid black' }}  >
+        <div className={'flex w70 br-black-1 justify-center items-center'} style={{ height: ((height - 342) + 'px') }}  >
           {
             user?.uid ?
               <Charts height={height - 342} width={width * 0.7} data={chartData} />
-            :
+              :
               <p>Please Login to see your Activity</p>
           }
         </div>
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 }
 
